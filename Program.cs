@@ -17,4 +17,6 @@ app.MapGet("/version", () =>
     });
 });
 
+app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Server = Environment.MachineName }));
+
 app.Run();

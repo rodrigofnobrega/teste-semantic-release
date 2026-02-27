@@ -19,4 +19,11 @@ app.MapGet("/version", () =>
 
 app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Server = Environment.MachineName }));
 
+
+app.MapGet("/calculadora/soma", (int a, int b) => 
+{
+    // Simula uma lógica que pode receber fixes ou melhorias
+    return Results.Ok(new { Resultado = a + b });
+});
+
 app.Run();

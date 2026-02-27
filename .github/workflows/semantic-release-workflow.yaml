@@ -10,7 +10,7 @@ jobs:
     name: release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Necessário para criar tags e releases
+      contents: write
       issues: write
       pull-requests: write
       
@@ -19,38 +19,34 @@ jobs:
         name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Importante para o semantic-release analisar todo o histórico
+          fetch-depth: 0
 
-      # Node é necessário APENAS para rodar a ferramenta semantic-release
       - id: setup-node-step
         name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: 'npm' # Agora podemos usar cache para acelerar!
 
-      # Setup do ambiente C#
       - id: setup-dotnet-step
         name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x" # Ajuste para a versão do seu projeto (6, 7, 8, 9)
+          dotnet-version: "9.0.x"
 
-      # Instala as ferramentas do Semantic Release globalmente no runner
-      # Incluindo o plugin 'exec' para rodar comandos dotnet e 'git' para commitar mudanças
-      - id: install-tools-step
-        name: Install Semantic Release & Plugins
-        run: npm install -g semantic-release @semantic-release/git @semantic-release/exec @semantic-release/changelog
+      # CORREÇÃO: Instala as dependências definidas no package.json localmente
+      # Isso cria a pasta node_modules e o package-lock.json
+      - id: install-dependencies-step
+        name: Install Release Tools
+        run: npm install
 
       - id: verify-step
-        name: Verify dependencies
+        name: Verify .NET dependencies
         run: dotnet restore
 
-      # O passo de Release.
-      # Nota: Removemos o 'npm run build' anterior.
-      # O build real deve ser feito DENTRO do semantic-release (via plugin exec)
-      # para que ele receba o número da versão correto.
       - id: semantic-release-step
         name: Release with Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        # Como instalamos localmente, o npx achará tudo automaticamente
         run: npx semantic-release
